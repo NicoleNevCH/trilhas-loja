@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }} · Trilhas de mensagens{% endblock %}
+{% block conteudo %}
+<h1>{{ titulo }}</h1>
+<p class="aviso erro">{{ mensagem }}</p>
+<p><a href="/clientes">Voltar para os clientes</a></p>
+{% endblock %}

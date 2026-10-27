@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Histórico · Trilhas de mensagens{% endblock %}
+{% block conteudo %}
+<h1>Histórico de envios simulados</h1>
+<p class="pendente">Nenhuma mensagem foi enviada de verdade: cada linha guarda a requisição que SERIA feita à API da Botmaker.</p>
+
+{% if resumo %}
+  <p class="aviso {{ 'erro' if resumo.falhas else 'sucesso' }}">
+    {{ resumo.previstos }} envio(s) previsto(s) para hoje:
+    {{ resumo.novos }} gravado(s), {{ resumo.repetidos }} já estava(m) no histórico
+    {%- if resumo.falhas %}, {{ resumo.falhas }} com telefone inválido (ignorado(s)){% endif %}.
+  </p>
+{% endif %}
+
+{% if historico %}
+<div class="rolagem">
+<table>
+  <thead><tr><th>Data do envio</th><th>Cliente</th><th>Trilha</th><th class="num">Msg</th><th>Mensagem</th><th>Requisição</th></tr></thead>
+  <tbody>
+    {% for h in historico %}
+    <tr>
+      <td>{{ h.data_prevista|data_br }}<br><small class="pendente">simulado em {{ h.simulado_em|data_hora_br }}</small></td>
+      <td><a href="/clientes/{{ h.cliente_id }}">{{ h.cliente_nome }}</a></td>
+      <td><span class="selo {{ h.trilha|classe_trilha }}">{{ h.trilha }}</span></td>
+      <td class="num">{{ h.numero_mensagem }}</td>
+      <td>{{ h.mensagem }}</td>
+      <td><details><summary>Ver requisição</summary><pre>{{ h.requisicao_json }}</pre></details></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+  <p class="vazio">Ainda não há envios simulados. Use o botão em <a href="/cronograma">Cronograma</a>.</p>
+{% endif %}
+{% endblock %}

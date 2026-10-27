@@ -1,0 +1,44 @@
+# Pipeline de integração contínua (CI): roda os testes automaticamente no GitHub
+# a cada push e a cada Pull Request, e confere se a imagem Docker ainda constrói.
+name: Testes
+
+# Quando executar: em todo push para a branch main e em qualquer Pull Request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    # Máquina virtual Linux fornecida pelo GitHub.
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Baixa o código do repositório para dentro da máquina.
+      - uses: actions/checkout@v4
+
+      # 2) Instala o Python 3.12 (a mesma versão do Dockerfile) e guarda o cache do pip
+      #    para as próximas execuções serem mais rápidas.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      # 3) Instala as dependências de execução + testes.
+      - name: Instalar dependências
+        run: pip install -r requirements-dev.txt
+
+      # 4) Roda os testes. Se algum falhar, o job fica vermelho no GitHub.
+      #    Os testes NÃO acessam a internet (usam dados falsos e um servidor local).
+      - name: Rodar testes
+        run: python -m pytest -v
+
+  docker:
+    runs-on: ubuntu-latest
+    # Só roda se os testes passaram.
+    needs: testes
+    steps:
+      - uses: actions/checkout@v4
+      # Constrói a imagem (sem publicar em lugar nenhum) para garantir que o Dockerfile funciona.
+      - name: Construir imagem Docker
+        run: docker build -t trilhas-loja .

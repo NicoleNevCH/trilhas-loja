@@ -1,0 +1,15 @@
+# Ambiente virtual e caches do Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Segredos: NUNCA versionar o .env (o modelo .env.example é versionado)
+.env
+
+# Dados gerados: o banco e os JSONs brutos são recriados rodando o projeto.
+# A pasta data/raw é mantida no Git só pelo arquivo .gitkeep.
+data/*.db
+data/raw/*
+!data/raw/.gitkeep

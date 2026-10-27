@@ -1,0 +1,4 @@
+# Dependências para DESENVOLVER/TESTAR (inclui todas as de execução).
+-r requirements.txt
+pytest==9.1.1    # executa os testes
+httpx2==2.16.0   # o TestClient do FastAPI/Starlette usa o httpx2 para simular requisições

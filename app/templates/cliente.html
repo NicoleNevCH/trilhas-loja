@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block titulo %}{{ cliente.nome_completo }} · Trilhas de mensagens{% endblock %}
+{% block conteudo %}
+<p><a href="/clientes">← Voltar para a lista</a></p>
+<h1>{{ cliente.nome_completo }}</h1>
+
+{% if salvo %}<p class="aviso sucesso">Decisão gravada.</p>{% endif %}
+{% if erro %}<p class="aviso erro">{{ erro }}</p>{% endif %}
+
+<dl>
+  <dt>ID</dt><dd>{{ cliente.id }}</dd>
+  <dt>Idade</dt><dd>{{ cliente.idade }} anos</dd>
+  <dt>Sexo</dt><dd>{{ cliente.sexo }}</dd>
+  <dt>Estado</dt><dd>{{ cliente.estado }}</dd>
+  <dt>Telefone</dt><dd>{{ cliente.telefone }}</dd>
+  <dt>Valor total dos carrinhos</dt><dd>{{ cliente.valor_total_carrinhos|reais }}</dd>
+  <dt>Quantidade total de itens</dt><dd>{{ cliente.quantidade_total_itens }}</dd>
+</dl>
+
+<h2>Trilhas sugeridas</h2>
+<div class="rolagem">
+<table>
+  <thead><tr><th class="num">Prioridade</th><th>Trilha</th><th>Motivo</th></tr></thead>
+  <tbody>
+    {% for s in sugestoes %}
+    <tr>
+      <td class="num">{{ s.prioridade }}</td>
+      <td><span class="selo {{ s.trilha|classe_trilha }}">{{ s.trilha }}</span></td>
+      <td>{{ s.motivo }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Decisão do analista</h2>
+{% if confirmacao %}
+  <p class="confirmado">Confirmado em {{ confirmacao[0]|data_br }}. Você pode ajustar as trilhas abaixo.</p>
+{% else %}
+  <p class="pendente">Ainda não confirmado: este cliente não entra no cronograma até você confirmar.</p>
+{% endif %}
+
+<form method="post" action="/clientes/{{ cliente.id }}/confirmar">
+  {# Uma caixa por trilha, na ordem de prioridade. Vêm marcadas as trilhas já
+     confirmadas ou, se ainda não houve decisão, as sugeridas. Para "ajustar",
+     o analista marca/desmarca e confirma de novo. #}
+  {% for t in trilhas %}
+  <label class="opcao">
+    <input type="checkbox" name="trilhas" value="{{ t }}" {{ 'checked' if t in selecionadas }}>
+    <span>
+      <span class="selo {{ t|classe_trilha }}">{{ t }}</span>
+      <small>{{ ('Sugerida: ' ~ motivos[t]) if t in motivos else 'Não sugerida pelas regras' }}</small>
+    </span>
+  </label>
+  {% endfor %}
+  <button type="submit">{{ 'Salvar ajustes' if confirmacao else 'Confirmar trilhas' }}</button>
+</form>
+
+{% if envios %}
+  <h2>Envios previstos para este cliente</h2>
+  <div class="rolagem">
+  <table>
+    <thead><tr><th>Data</th><th>Trilha</th><th class="num">Mensagem</th><th>Texto</th></tr></thead>
+    <tbody>
+      {% for e in envios %}
+      <tr>
+        <td>{{ e.data|data_br }} <span class="pendente">({{ e.data|dia_semana }})</span></td>
+        <td><span class="selo {{ e.trilha|classe_trilha }}">{{ e.trilha }}</span></td>
+        <td class="num">{{ e.numero_mensagem }} de 3</td>
+        <td>{{ e.texto }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+{% endif %}
+{% endblock %}

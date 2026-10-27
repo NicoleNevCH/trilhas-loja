@@ -1,0 +1,10 @@
+# Dependências para RODAR o projeto (versões fixadas para o resultado ser o mesmo em
+# qualquer computador, no Docker e no GitHub Actions).
+fastapi==0.162.0          # framework web
+starlette==1.10.0         # base do FastAPI (fixada junto para evitar surpresas)
+pydantic==2.14.1          # validação de dados usada pelo FastAPI
+uvicorn==0.54.0           # servidor que executa o app
+jinja2==3.1.6             # templates HTML
+python-multipart==0.0.32  # necessário para o FastAPI ler formulários HTML (POST)
+requests==2.34.2          # chamadas HTTP à API DummyJSON
+python-dotenv==1.2.4      # lê o arquivo .env (token e demais configurações)

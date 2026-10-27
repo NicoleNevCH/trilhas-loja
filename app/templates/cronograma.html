@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}Cronograma · Trilhas de mensagens{% endblock %}
+{% block conteudo %}
+<h1>Cronograma de envios</h1>
+
+<p>Dia de envio configurado: <strong>{{ dia_envio }}</strong>. Hoje é {{ hoje|dia_semana }}, {{ hoje|data_br }}.</p>
+
+{# Botão pedido no enunciado. É um formulário POST (ação que grava dados não deve ser
+   um link GET). Nada é enviado de verdade: só grava a requisição no histórico. #}
+<form method="post" action="/simular-envios" class="linha">
+  <button type="submit">Simular envios de hoje</button>
+  <span class="pendente">
+    {% if envios_hoje %}{{ envios_hoje }} mensagem(ns) prevista(s) para hoje.{% else %}Nenhuma mensagem prevista para hoje.{% endif %}
+  </span>
+</form>
+
+{# Quantas semanas mostrar: formulário GET, o valor vai na URL (?semanas=8). #}
+<form method="get" action="/cronograma" class="linha">
+  <label for="semanas">Próximas semanas</label>
+  <input type="number" id="semanas" name="semanas" min="1" max="26" value="{{ semanas }}">
+  <button type="submit" class="secundario">Atualizar</button>
+</form>
+
+{% if sem_confirmados %}
+  <p class="vazio">Nenhum cliente confirmado ainda. Abra um cliente em <a href="/clientes">Clientes</a> e confirme as trilhas.</p>
+{% elif not grupos %}
+  <p class="vazio">Nenhum envio previsto nas próximas {{ semanas }} semanas.</p>
+{% else %}
+  {% for data, envios in grupos.items() %}
+    <h2>{{ data|data_br }} · {{ data|dia_semana }}{{ ' (hoje)' if data == hoje }}</h2>
+    <div class="rolagem">
+    <table>
+      <thead><tr><th>Cliente</th><th>Trilha</th><th class="num">Mensagem</th><th>Texto</th><th>Simulação</th></tr></thead>
+      <tbody>
+        {% for e in envios %}
+        <tr>
+          <td><a href="/clientes/{{ e.cliente_id }}">{{ e.cliente_nome }}</a></td>
+          <td><span class="selo {{ e.trilha|classe_trilha }}">{{ e.trilha }}</span></td>
+          <td class="num">{{ e.numero_mensagem }} de 3</td>
+          <td>{{ e.texto }}</td>
+          <td>{% if (e.cliente_id, e.trilha, e.numero_mensagem, e.data.isoformat()) in simulados %}<span class="confirmado">Simulado</span>{% else %}<span class="pendente">—</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}
